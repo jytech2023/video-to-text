@@ -16,20 +16,29 @@ export async function downloadVideo(
   outputDir: string
 ): Promise<string> {
   const outputPath = path.join(outputDir, "video.mp4");
-  await exec(
-    "yt-dlp",
-    [
-      "-f",
-      "bv*+ba/b",
-      "--merge-output-format",
-      "mp4",
-      "--no-playlist",
-      "-o",
-      outputPath,
-      url,
-    ],
-    { timeout: 300_000, maxBuffer: 10 * 1024 * 1024 }
-  );
+  const args = [
+    "-f",
+    "bv*+ba/b",
+    "--merge-output-format",
+    "mp4",
+    "--no-playlist",
+    "--js-runtimes",
+    "deno",
+    "--remote-components",
+    "ejs:github",
+    "-o",
+    outputPath,
+  ];
+
+  // Use cookies from browser if configured via env
+  const cookieBrowser = process.env.YT_COOKIE_BROWSER;
+  if (cookieBrowser) {
+    args.push("--cookies-from-browser", cookieBrowser);
+  }
+
+  args.push(url);
+
+  await exec("yt-dlp", args, { timeout: 300_000, maxBuffer: 10 * 1024 * 1024 });
   return outputPath;
 }
 
