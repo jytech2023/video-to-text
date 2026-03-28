@@ -11,6 +11,7 @@ interface FrameResult {
 
 interface ProcessingResult {
   transcription: string;
+  videoUrl?: string;
   frames: FrameResult[];
 }
 
@@ -19,6 +20,7 @@ type Dict = Record<string, any>;
 
 const STEPS = [
   "downloading",
+  "uploading",
   "extractingAudio",
   "transcribing",
   "extractingFrames",

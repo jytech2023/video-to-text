@@ -14,7 +14,8 @@
     "frames": "画面分析",
     "frame": "帧",
     "noTranscription": "未检测到语音",
-    "download": "下载结果"
+    "download": "下载结果",
+    "downloadVideo": "下载视频"
   },
   "errors": {
     "invalidUrl": "请输入有效的 YouTube 链接",
@@ -23,6 +24,7 @@
   },
   "progress": {
     "downloading": "正在下载视频...",
+    "uploading": "正在保存视频...",
     "extractingAudio": "正在提取音频...",
     "transcribing": "正在转录语音...",
     "extractingFrames": "正在截取画面帧...",

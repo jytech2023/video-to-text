@@ -7,6 +7,9 @@ import {
   cleanup,
 } from "@/lib/video";
 import { transcribeAudio, analyzeFrames } from "@/lib/ai";
+import { put } from "@vercel/blob";
+import fs from "fs/promises";
+import path from "path";
 
 export const maxDuration = 300;
 
@@ -48,23 +51,39 @@ export async function POST(request: NextRequest) {
           tempDir = await createTempDir();
           const videoPath = await downloadVideo(url, tempDir);
 
-          // 2. Extract audio and transcribe
+          // 2. Upload video to Vercel Blob
+          send("progress", { step: "uploading" });
+          let videoUrl: string | undefined;
+          try {
+            const videoBuffer = await fs.readFile(videoPath);
+            const filename = `videos/${Date.now()}-${path.basename(videoPath)}`;
+            const blob = await put(filename, videoBuffer, {
+              access: "public",
+              addRandomSuffix: true,
+            });
+            videoUrl = blob.url;
+          } catch {
+            // Blob upload failed, continue without download link
+          }
+
+          // 3. Extract audio and transcribe
           send("progress", { step: "extractingAudio" });
           const audioPath = await extractAudio(videoPath);
 
           send("progress", { step: "transcribing" });
           const transcription = await transcribeAudio(audioPath);
 
-          // 3. Extract and analyze frames
+          // 4. Extract and analyze frames
           send("progress", { step: "extractingFrames" });
           const framePaths = await extractFrames(videoPath, clampedFrameCount);
 
           send("progress", { step: "analyzingFrames" });
           const frameResults = await analyzeFrames(framePaths);
 
-          // 4. Send final result
+          // 5. Send final result
           send("result", {
             transcription,
+            videoUrl,
             frames: frameResults.map((f) => ({
               index: f.index,
               description: f.description,

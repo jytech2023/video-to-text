@@ -14,7 +14,8 @@
     "frames": "Frame Analysis",
     "frame": "Frame",
     "noTranscription": "No speech detected",
-    "download": "Download Results"
+    "download": "Download Results",
+    "downloadVideo": "Download Video"
   },
   "errors": {
     "invalidUrl": "Please enter a valid YouTube URL",
@@ -23,6 +24,7 @@
   },
   "progress": {
     "downloading": "Downloading video...",
+    "uploading": "Saving video...",
     "extractingAudio": "Extracting audio...",
     "transcribing": "Transcribing speech...",
     "extractingFrames": "Extracting frames...",
