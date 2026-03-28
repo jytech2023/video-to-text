@@ -1,4 +1,4 @@
-FROM node:20-slim AS base
+FROM node:22-slim AS base
 
 # Install ffmpeg, yt-dlp, and deno
 RUN apt-get update && apt-get install -y --no-install-recommends \

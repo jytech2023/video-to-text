@@ -59,9 +59,11 @@ export async function POST(request: NextRequest) {
             send("progress", { step: "uploading" });
             try {
               videoUrl = await uploadToR2(videoPath);
-            } catch {
-              // R2 upload failed, continue without download link
+            } catch (uploadErr) {
+              console.error("R2 upload failed:", uploadErr);
             }
+          } else {
+            console.warn("R2 not configured, skipping video upload. Missing env vars.");
           }
 
           // 3. Extract audio and transcribe

@@ -255,7 +255,7 @@ export default function VideoForm({
       )}
 
       {/* Results */}
-      {result && <ResultDisplay result={result} dict={dict} />}
+      {result && <ResultDisplay result={result} dict={dict} sourceUrl={url} />}
     </div>
   );
 }

@@ -15,7 +15,8 @@
     "frame": "帧",
     "noTranscription": "未检测到语音",
     "download": "下载结果",
-    "downloadVideo": "下载视频"
+    "downloadVideo": "下载视频",
+    "videoPlayback": "视频"
   },
   "errors": {
     "invalidUrl": "请输入有效的 YouTube 链接",
@@ -51,5 +52,6 @@
   "statsFrameAnalysis": "画面分析",
   "transcription": "语音转录",
   "frame": "帧",
-  "downloadVideo": "下载视频"
+  "downloadVideo": "下载视频",
+  "videoPlayback": "视频"
 }
