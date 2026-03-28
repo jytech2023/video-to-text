@@ -1,4 +1,4 @@
-import { db } from "@/lib/db";
+import { getDb } from "@/lib/db";
 import { processHistory } from "@/lib/db/schema";
 import { desc, sql, count } from "drizzle-orm";
 import { getDictionary, isValidLocale, defaultLocale, type Locale } from "@/lib/i18n";
@@ -7,28 +7,28 @@ import Link from "next/link";
 export const dynamic = "force-dynamic";
 
 async function getStats() {
-  const [totalRow] = await db
+  const [totalRow] = await getDb()
     .select({ count: count() })
     .from(processHistory);
 
-  const [successRow] = await db
+  const [successRow] = await getDb()
     .select({ count: count() })
     .from(processHistory)
     .where(sql`${processHistory.success} = true`);
 
-  const [failRow] = await db
+  const [failRow] = await getDb()
     .select({ count: count() })
     .from(processHistory)
     .where(sql`${processHistory.success} = false`);
 
-  const [avgDurationRow] = await db
+  const [avgDurationRow] = await getDb()
     .select({
       avg: sql<number>`coalesce(avg(${processHistory.durationMs}), 0)::int`,
     })
     .from(processHistory)
     .where(sql`${processHistory.success} = true`);
 
-  const recent = await db
+  const recent = await getDb()
     .select({
       id: processHistory.id,
       url: processHistory.url,

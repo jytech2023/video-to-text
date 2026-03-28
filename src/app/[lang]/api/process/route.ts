@@ -8,7 +8,7 @@ import {
 } from "@/lib/video";
 import { transcribeAudio, analyzeFrames } from "@/lib/ai";
 import { isR2Configured, uploadToR2 } from "@/lib/r2";
-import { db } from "@/lib/db";
+import { getDb } from "@/lib/db";
 import { processHistory } from "@/lib/db/schema";
 
 export const maxDuration = 300;
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
           }));
 
           try {
-            await db.insert(processHistory).values({
+            await getDb().insert(processHistory).values({
               url,
               transcription,
               videoUrl,
@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
 
           // Save failed attempt to database
           try {
-            await db.insert(processHistory).values({
+            await getDb().insert(processHistory).values({
               url,
               frameCount: clampedFrameCount,
               durationMs: Date.now() - startTime,

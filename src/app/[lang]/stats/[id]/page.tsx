@@ -1,4 +1,4 @@
-import { db } from "@/lib/db";
+import { getDb } from "@/lib/db";
 import { processHistory } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { getDictionary, isValidLocale, defaultLocale, type Locale } from "@/lib/i18n";
@@ -36,7 +36,7 @@ export default async function StatsDetailPage({
   const locale: Locale = isValidLocale(lang) ? lang : defaultLocale;
   const dict = (await getDictionary(locale)) as Record<string, string>;
 
-  const [record] = await db
+  const [record] = await getDb()
     .select()
     .from(processHistory)
     .where(eq(processHistory.id, id))
