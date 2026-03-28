@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
-import { getDictionary, isValidLocale, defaultLocale, type Locale } from "@/lib/i18n";
+import { getDictionary, isValidLocale, defaultLocale, locales, type Locale } from "@/lib/i18n";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+
+export async function generateStaticParams() {
+  return locales.map((lang) => ({ lang }));
+}
 
 export async function generateMetadata({
   params,
@@ -9,10 +13,18 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { lang } = await params;
   const locale = isValidLocale(lang) ? lang : defaultLocale;
-  const dict = (await getDictionary(locale)) as Record<string, string>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const dict = (await getDictionary(locale)) as Record<string, any>;
   return {
     title: dict.title,
     description: dict.description,
+    alternates: {
+      canonical: `/${locale}`,
+      languages: {
+        en: "/en",
+        zh: "/zh",
+      },
+    },
   };
 }
 

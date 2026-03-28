@@ -14,9 +14,62 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://video-to-text.vercel.app";
+
 export const metadata: Metadata = {
-  title: "Video to Text",
-  description: "Extract speech and visual content from videos into text",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Video2Text - AI Video Transcription & Frame Analysis",
+    template: "%s | Video2Text",
+  },
+  description:
+    "Free AI-powered tool to extract speech transcription and visual content from YouTube videos. Uses Groq Whisper & Llama Vision.",
+  keywords: [
+    "video to text",
+    "youtube transcription",
+    "speech to text",
+    "video transcription",
+    "frame analysis",
+    "AI video",
+    "whisper",
+    "free transcription",
+    "video OCR",
+  ],
+  authors: [{ name: "JYTech" }],
+  creator: "JYTech",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    alternateLocale: "zh_CN",
+    url: siteUrl,
+    siteName: "Video2Text",
+    title: "Video2Text - AI Video Transcription & Frame Analysis",
+    description:
+      "Free AI-powered tool to extract speech and visual content from videos into text.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Video2Text - AI Video Transcription & Frame Analysis",
+    description:
+      "Free AI-powered tool to extract speech and visual content from videos into text.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  alternates: {
+    languages: {
+      en: "/en",
+      zh: "/zh",
+    },
+  },
 };
 
 export default function RootLayout({
