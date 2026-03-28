@@ -30,5 +30,26 @@
     "extractingFrames": "正在截取画面帧...",
     "analyzingFrames": "正在分析画面内容...",
     "done": "处理完成！"
-  }
+  },
+  "backHome": "返回",
+  "statsTitle": "使用统计",
+  "statsTotal": "总计",
+  "statsSuccess": "成功",
+  "statsFailed": "失败",
+  "statsAvgTime": "平均耗时",
+  "statsRecent": "近期处理记录",
+  "statsEmpty": "暂无处理记录。",
+  "statsDate": "日期",
+  "statsVideo": "视频",
+  "statsFrames": "帧数",
+  "statsDuration": "耗时",
+  "statsStatus": "状态",
+  "stats": "统计",
+  "statsDownload": "下载",
+  "statsDetailTitle": "处理详情",
+  "statsBackToList": "返回统计",
+  "statsFrameAnalysis": "画面分析",
+  "transcription": "语音转录",
+  "frame": "帧",
+  "downloadVideo": "下载视频"
 }

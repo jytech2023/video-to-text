@@ -30,5 +30,26 @@
     "extractingFrames": "Extracting frames...",
     "analyzingFrames": "Analyzing frame images...",
     "done": "Processing complete!"
-  }
+  },
+  "backHome": "Back",
+  "statsTitle": "Usage Stats",
+  "statsTotal": "Total",
+  "statsSuccess": "Success",
+  "statsFailed": "Failed",
+  "statsAvgTime": "Avg Time",
+  "statsRecent": "Recent Processing",
+  "statsEmpty": "No processing history yet.",
+  "statsDate": "Date",
+  "statsVideo": "Video",
+  "statsFrames": "Frames",
+  "statsDuration": "Duration",
+  "statsStatus": "Status",
+  "stats": "Stats",
+  "statsDownload": "Download",
+  "statsDetailTitle": "Processing Detail",
+  "statsBackToList": "Back to Stats",
+  "statsFrameAnalysis": "Frame Analysis",
+  "transcription": "Speech Transcription",
+  "frame": "Frame",
+  "downloadVideo": "Download Video"
 }

@@ -45,6 +45,8 @@ export async function POST(request: NextRequest) {
           );
         }
 
+        const startTime = Date.now();
+
         try {
           // 1. Download video
           send("progress", { step: "downloading" });
@@ -95,6 +97,8 @@ export async function POST(request: NextRequest) {
                   description: f.description,
                 }))
               ),
+              durationMs: Date.now() - startTime,
+              success: true,
             });
           } catch {
             // DB save failed, continue — results are still returned
@@ -107,6 +111,20 @@ export async function POST(request: NextRequest) {
         } catch (err) {
           const message =
             err instanceof Error ? err.message : "Unknown error occurred";
+
+          // Save failed attempt to database
+          try {
+            await db.insert(processHistory).values({
+              url,
+              frameCount: clampedFrameCount,
+              durationMs: Date.now() - startTime,
+              success: false,
+              error: message,
+            });
+          } catch {
+            // DB save failed, ignore
+          }
+
           send("error", { message });
         } finally {
           if (tempDir) await cleanup(tempDir);

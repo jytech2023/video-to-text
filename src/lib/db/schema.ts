@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, integer, uuid } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, integer, uuid, boolean } from "drizzle-orm/pg-core";
 
 export const processHistory = pgTable("process_history", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -7,6 +7,9 @@ export const processHistory = pgTable("process_history", {
   videoUrl: text("video_url"),
   frameCount: integer("frame_count").notNull(),
   frames: text("frames"), // JSON string of frame descriptions
+  durationMs: integer("duration_ms"),
+  success: boolean("success").default(true).notNull(),
+  error: text("error"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getDictionary, isValidLocale, defaultLocale, locales, type Locale } from "@/lib/i18n";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import Link from "next/link";
 
 export async function generateStaticParams() {
   return locales.map((lang) => ({ lang }));
@@ -37,6 +38,8 @@ export default async function LangLayout({
 }) {
   const { lang } = await params;
   const locale: Locale = isValidLocale(lang) ? lang : defaultLocale;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const dict = (await getDictionary(locale)) as Record<string, any>;
 
   return (
     <div className="relative flex min-h-screen flex-col bg-grid">
@@ -49,15 +52,23 @@ export default async function LangLayout({
 
       <header className="sticky top-0 z-20 border-b border-white/5 bg-[#0a0a0f]/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-6">
-          <div className="flex items-center gap-3">
+          <Link href={`/${locale}`} className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 text-lg shadow-lg shadow-blue-500/20">
               V
             </div>
             <span className="text-lg font-bold tracking-tight text-white">
               Video<span className="text-gradient">2Text</span>
             </span>
+          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href={`/${locale}/stats`}
+              className="text-sm text-zinc-400 transition-colors hover:text-white"
+            >
+              {((dict as Record<string, string>).stats) || "Stats"}
+            </Link>
+            <LanguageSwitcher current={locale} />
           </div>
-          <LanguageSwitcher current={locale} />
         </div>
       </header>
 
