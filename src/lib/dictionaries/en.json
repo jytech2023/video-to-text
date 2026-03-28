@@ -1,0 +1,32 @@
+{
+  "title": "Video to Text",
+  "description": "Extract speech and visual content from videos into text",
+  "form": {
+    "urlLabel": "Video URL",
+    "urlPlaceholder": "Paste a YouTube URL here...",
+    "framesLabel": "Number of frames to capture",
+    "submit": "Process Video",
+    "processing": "Processing..."
+  },
+  "results": {
+    "title": "Processing Results",
+    "transcription": "Speech Transcription",
+    "frames": "Frame Analysis",
+    "frame": "Frame",
+    "noTranscription": "No speech detected",
+    "download": "Download Results"
+  },
+  "errors": {
+    "invalidUrl": "Please enter a valid YouTube URL",
+    "processingFailed": "Video processing failed. Please try again.",
+    "apiKeyMissing": "OpenAI API key is not configured on the server."
+  },
+  "progress": {
+    "downloading": "Downloading video...",
+    "extractingAudio": "Extracting audio...",
+    "transcribing": "Transcribing speech...",
+    "extractingFrames": "Extracting frames...",
+    "analyzingFrames": "Analyzing frame images...",
+    "done": "Processing complete!"
+  }
+}

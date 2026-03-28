@@ -1,0 +1,32 @@
+{
+  "title": "视频转文字",
+  "description": "从视频中提取语音和画面内容为文本",
+  "form": {
+    "urlLabel": "视频链接",
+    "urlPlaceholder": "在此粘贴 YouTube 链接...",
+    "framesLabel": "截取帧数",
+    "submit": "开始处理",
+    "processing": "处理中..."
+  },
+  "results": {
+    "title": "处理结果",
+    "transcription": "语音转录",
+    "frames": "画面分析",
+    "frame": "帧",
+    "noTranscription": "未检测到语音",
+    "download": "下载结果"
+  },
+  "errors": {
+    "invalidUrl": "请输入有效的 YouTube 链接",
+    "processingFailed": "视频处理失败，请重试。",
+    "apiKeyMissing": "服务器未配置 OpenAI API 密钥。"
+  },
+  "progress": {
+    "downloading": "正在下载视频...",
+    "extractingAudio": "正在提取音频...",
+    "transcribing": "正在转录语音...",
+    "extractingFrames": "正在截取画面帧...",
+    "analyzingFrames": "正在分析画面内容...",
+    "done": "处理完成！"
+  }
+}
