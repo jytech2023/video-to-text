@@ -7,9 +7,9 @@ import {
   cleanup,
 } from "@/lib/video";
 import { transcribeAudio, analyzeFrames } from "@/lib/ai";
-import { put } from "@vercel/blob";
-import fs from "fs/promises";
-import path from "path";
+import { isR2Configured, uploadToR2 } from "@/lib/r2";
+import { db } from "@/lib/db";
+import { processHistory } from "@/lib/db/schema";
 
 export const maxDuration = 300;
 
@@ -51,19 +51,15 @@ export async function POST(request: NextRequest) {
           tempDir = await createTempDir();
           const videoPath = await downloadVideo(url, tempDir);
 
-          // 2. Upload video to Vercel Blob
-          send("progress", { step: "uploading" });
+          // 2. Upload video to R2 (only if configured)
           let videoUrl: string | undefined;
-          try {
-            const videoBuffer = await fs.readFile(videoPath);
-            const filename = `videos/${Date.now()}-${path.basename(videoPath)}`;
-            const blob = await put(filename, videoBuffer, {
-              access: "public",
-              addRandomSuffix: true,
-            });
-            videoUrl = blob.url;
-          } catch {
-            // Blob upload failed, continue without download link
+          if (isR2Configured()) {
+            send("progress", { step: "uploading" });
+            try {
+              videoUrl = await uploadToR2(videoPath);
+            } catch {
+              // R2 upload failed, continue without download link
+            }
           }
 
           // 3. Extract audio and transcribe
@@ -80,16 +76,32 @@ export async function POST(request: NextRequest) {
           send("progress", { step: "analyzingFrames" });
           const frameResults = await analyzeFrames(framePaths);
 
-          // 5. Send final result
-          send("result", {
-            transcription,
-            videoUrl,
-            frames: frameResults.map((f) => ({
-              index: f.index,
-              description: f.description,
-              image: `data:image/jpeg;base64,${f.base64}`,
-            })),
-          });
+          // 5. Save to database
+          const frames = frameResults.map((f) => ({
+            index: f.index,
+            description: f.description,
+            image: `data:image/jpeg;base64,${f.base64}`,
+          }));
+
+          try {
+            await db.insert(processHistory).values({
+              url,
+              transcription,
+              videoUrl,
+              frameCount: clampedFrameCount,
+              frames: JSON.stringify(
+                frameResults.map((f) => ({
+                  index: f.index,
+                  description: f.description,
+                }))
+              ),
+            });
+          } catch {
+            // DB save failed, continue — results are still returned
+          }
+
+          // 6. Send final result
+          send("result", { transcription, videoUrl, frames });
 
           send("progress", { step: "done" });
         } catch (err) {
