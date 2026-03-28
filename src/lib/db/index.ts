@@ -15,5 +15,5 @@ export function getDb(): NeonHttpDatabase<typeof schema> {
     const sql = neon(process.env.DATABASE_URL!);
     _db = drizzle(sql, { schema: schemaModule });
   }
-  return _db;
+  return _db!;
 }
