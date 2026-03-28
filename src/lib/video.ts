@@ -6,6 +6,44 @@ import os from "os";
 
 const exec = promisify(execFile);
 
+const COOKIES_TMP_PATH = path.join(os.tmpdir(), "v2t-cookies.txt");
+
+async function resolveCookies(): Promise<string | null> {
+  // 1. Base64 env var (Render/Docker)
+  const base64 = process.env.YT_COOKIES_BASE64;
+  if (base64) {
+    const decoded = Buffer.from(base64, "base64").toString("utf-8");
+    await fs.writeFile(COOKIES_TMP_PATH, decoded);
+    return COOKIES_TMP_PATH;
+  }
+
+  // 2. Base64 file (committed to repo for remote deployments)
+  const base64FilePath = process.env.YT_COOKIE_BASE64_FILE;
+  if (base64FilePath) {
+    try {
+      const base64Content = (await fs.readFile(base64FilePath, "utf-8")).trim();
+      const decoded = Buffer.from(base64Content, "base64").toString("utf-8");
+      await fs.writeFile(COOKIES_TMP_PATH, decoded);
+      return COOKIES_TMP_PATH;
+    } catch {
+      // file doesn't exist or unreadable, fall through
+    }
+  }
+
+  // 3. Direct file path
+  const filePath = process.env.YT_COOKIE_FILE;
+  if (filePath) {
+    try {
+      await fs.access(filePath);
+      return filePath;
+    } catch {
+      // file doesn't exist, fall through
+    }
+  }
+
+  return null;
+}
+
 export async function createTempDir(): Promise<string> {
   const dir = await fs.mkdtemp(path.join(os.tmpdir(), "v2t-"));
   return dir;
@@ -30,9 +68,12 @@ export async function downloadVideo(
     outputPath,
   ];
 
-  // Use cookies from browser if configured via env
+  // Resolve cookies: base64 env → file → browser (in priority order)
+  const cookieFile = await resolveCookies();
   const cookieBrowser = process.env.YT_COOKIE_BROWSER;
-  if (cookieBrowser) {
+  if (cookieFile) {
+    args.push("--cookies", cookieFile);
+  } else if (cookieBrowser) {
     args.push("--cookies-from-browser", cookieBrowser);
   }
 

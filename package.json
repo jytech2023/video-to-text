@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "cookies:refresh": "tsx scripts/get-youtube-cookies.ts",
+    "cookies:base64": "tsx scripts/get-youtube-cookies.ts --base64"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -29,6 +31,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.1",
     "tailwindcss": "^4",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }
