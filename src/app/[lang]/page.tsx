@@ -12,12 +12,12 @@ export default async function Home({
   const dict = (await getDictionary(locale)) as Record<string, any>;
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 sm:py-12">
-      <div className="mb-8 text-center sm:mb-12">
-        <h2 className="text-2xl font-bold tracking-tight text-zinc-900 sm:text-3xl dark:text-zinc-100">
+    <div className="mx-auto w-full max-w-4xl px-4 py-12 sm:px-6 sm:py-20">
+      <div className="mb-10 text-center sm:mb-16 animate-fade-in-up">
+        <h2 className="text-gradient text-4xl font-extrabold tracking-tight sm:text-5xl">
           {dict.title}
         </h2>
-        <p className="mt-2 text-base text-zinc-600 dark:text-zinc-400">
+        <p className="mx-auto mt-4 max-w-lg text-base text-zinc-400 sm:text-lg">
           {dict.description}
         </p>
       </div>

@@ -17,6 +17,15 @@ interface ProcessingResult {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Dict = Record<string, any>;
 
+const STEPS = [
+  "downloading",
+  "extractingAudio",
+  "transcribing",
+  "extractingFrames",
+  "analyzingFrames",
+  "done",
+] as const;
+
 export default function VideoForm({
   dict,
   lang,
@@ -27,6 +36,7 @@ export default function VideoForm({
   const [url, setUrl] = useState("");
   const [frameCount, setFrameCount] = useState(10);
   const [processing, setProcessing] = useState(false);
+  const [currentStep, setCurrentStep] = useState("");
   const [progress, setProgress] = useState("");
   const [result, setResult] = useState<ProcessingResult | null>(null);
   const [error, setError] = useState("");
@@ -37,6 +47,7 @@ export default function VideoForm({
       setError("");
       setResult(null);
       setProcessing(true);
+      setCurrentStep("downloading");
       setProgress(dict.progress.downloading);
 
       try {
@@ -64,7 +75,6 @@ export default function VideoForm({
 
           buffer += decoder.decode(value, { stream: true });
 
-          // SSE messages are separated by double newlines
           const messages = buffer.split("\n\n");
           buffer = messages.pop() ?? "";
 
@@ -84,6 +94,7 @@ export default function VideoForm({
               const data = JSON.parse(dataStr);
               if (eventType === "progress") {
                 const step = data.step as keyof typeof dict.progress;
+                setCurrentStep(data.step);
                 setProgress(dict.progress[step] ?? data.step);
               } else if (eventType === "result") {
                 setResult(data as ProcessingResult);
@@ -92,7 +103,6 @@ export default function VideoForm({
               }
             } catch (parseErr) {
               if (eventType === "error") throw parseErr;
-              // skip unparseable chunks
             }
           }
         }
@@ -103,41 +113,60 @@ export default function VideoForm({
       } finally {
         setProcessing(false);
         setProgress("");
+        setCurrentStep("");
       }
     },
     [url, frameCount, lang, dict]
   );
 
+  const stepIndex = STEPS.indexOf(currentStep as (typeof STEPS)[number]);
+  const progressPercent = processing
+    ? Math.max(5, ((stepIndex + 1) / STEPS.length) * 100)
+    : 0;
+
   return (
     <div className="w-full space-y-8">
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label
-            htmlFor="url"
-            className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-          >
-            {dict.form.urlLabel}
-          </label>
-          <input
-            id="url"
-            type="url"
-            required
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder={dict.form.urlPlaceholder}
-            className="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-zinc-900 shadow-sm transition-colors placeholder:text-zinc-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-500"
-            disabled={processing}
-          />
-        </div>
+      {/* Form Card */}
+      <div className="glass rounded-2xl p-6 sm:p-8 animate-fade-in-up">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label
+              htmlFor="url"
+              className="mb-2 block text-sm font-medium text-zinc-300"
+            >
+              {dict.form.urlLabel}
+            </label>
+            <div className="relative">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
+                <svg className="h-5 w-5 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.193-9.193a4.5 4.5 0 016.364 6.364l-4.5 4.5a4.5 4.5 0 01-7.244-1.242" />
+                </svg>
+              </div>
+              <input
+                id="url"
+                type="url"
+                required
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder={dict.form.urlPlaceholder}
+                className="block w-full rounded-xl border border-white/10 bg-white/5 py-3.5 pl-12 pr-4 text-white shadow-sm transition-all placeholder:text-zinc-500 focus:border-blue-500/50 focus:bg-white/8 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                disabled={processing}
+              />
+            </div>
+          </div>
 
-        <div>
-          <label
-            htmlFor="frameCount"
-            className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-          >
-            {dict.form.framesLabel}
-          </label>
-          <div className="mt-1 flex items-center gap-4">
+          <div>
+            <div className="mb-2 flex items-center justify-between">
+              <label
+                htmlFor="frameCount"
+                className="text-sm font-medium text-zinc-300"
+              >
+                {dict.form.framesLabel}
+              </label>
+              <span className="rounded-lg bg-gradient-to-r from-blue-500/20 to-purple-500/20 px-3 py-1 text-sm font-bold tabular-nums text-white">
+                {frameCount}
+              </span>
+            </div>
             <input
               id="frameCount"
               type="range"
@@ -145,39 +174,85 @@ export default function VideoForm({
               max={30}
               value={frameCount}
               onChange={(e) => setFrameCount(Number(e.target.value))}
-              className="flex-1"
+              className="w-full"
               disabled={processing}
             />
-            <span className="w-10 text-center text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-              {frameCount}
+            <div className="mt-1 flex justify-between text-xs text-zinc-600">
+              <span>1</span>
+              <span>15</span>
+              <span>30</span>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={processing || !url}
+            className="group relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-3.5 text-base font-semibold text-white shadow-lg shadow-blue-500/25 transition-all hover:shadow-blue-500/40 hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none sm:w-auto"
+          >
+            <span className="relative z-10 flex items-center justify-center gap-2">
+              {processing ? (
+                <>
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                  {dict.form.processing}
+                </>
+              ) : (
+                <>
+                  <svg className="h-5 w-5 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z" />
+                  </svg>
+                  {dict.form.submit}
+                </>
+              )}
+            </span>
+          </button>
+        </form>
+      </div>
+
+      {/* Progress */}
+      {processing && progress && (
+        <div className="glass rounded-2xl p-6 animate-fade-in-up">
+          <div className="mb-3 flex items-center justify-between">
+            <span className="text-sm font-medium text-zinc-300">
+              {progress}
+            </span>
+            <span className="text-xs tabular-nums text-zinc-500">
+              {Math.round(progressPercent)}%
             </span>
           </div>
-        </div>
-
-        <button
-          type="submit"
-          disabled={processing || !url}
-          className="w-full rounded-lg bg-blue-600 px-6 py-3 text-base font-semibold text-white shadow-sm transition-all hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
-        >
-          {processing ? dict.form.processing : dict.form.submit}
-        </button>
-      </form>
-
-      {processing && progress && (
-        <div className="flex items-center gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 dark:border-blue-800 dark:bg-blue-900/30">
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
-          <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
-            {progress}
-          </span>
+          <div className="h-2 overflow-hidden rounded-full bg-white/5">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-700 ease-out"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+          <div className="mt-4 flex gap-1.5">
+            {STEPS.slice(0, -1).map((step, i) => (
+              <div
+                key={step}
+                className={`h-1 flex-1 rounded-full transition-all duration-500 ${
+                  i <= stepIndex
+                    ? "bg-gradient-to-r from-blue-500 to-purple-500"
+                    : "bg-white/5"
+                }`}
+              />
+            ))}
+          </div>
         </div>
       )}
 
+      {/* Error */}
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300">
-          {error}
+        <div className="animate-fade-in-up rounded-2xl border border-red-500/20 bg-red-500/5 px-5 py-4 text-sm text-red-400">
+          <div className="flex items-start gap-3">
+            <svg className="mt-0.5 h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+            </svg>
+            {error}
+          </div>
         </div>
       )}
 
+      {/* Results */}
       {result && <ResultDisplay result={result} dict={dict} />}
     </div>
   );

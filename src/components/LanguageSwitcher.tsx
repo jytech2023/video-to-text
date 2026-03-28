@@ -19,15 +19,15 @@ export default function LanguageSwitcher({ current }: { current: Locale }) {
   }
 
   return (
-    <div className="flex items-center gap-1 rounded-lg bg-zinc-100 p-1 dark:bg-zinc-800">
+    <div className="flex items-center gap-0.5 rounded-xl border border-white/10 bg-white/5 p-1">
       {locales.map((locale) => (
         <Link
           key={locale}
           href={getLocalePath(locale)}
-          className={`rounded-md px-3 py-1 text-sm font-medium transition-colors ${
+          className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
             locale === current
-              ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-zinc-100"
-              : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+              ? "bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-white shadow-sm"
+              : "text-zinc-500 hover:text-zinc-300"
           }`}
         >
           {labels[locale]}
